@@ -32,7 +32,6 @@ const PostView = (post: PostWithUser) => {
 
 const Posts = () => {
   const { data, isLoading } = api.posts.getAll.useQuery();
-  console.log(isLoading);
 
   if (isLoading) return <LoadingPage />;
 
@@ -40,7 +39,7 @@ const Posts = () => {
 
   return (
     <div className=" flex flex-col items-center gap-4 text-xl text-white">
-      {data.reverse().map((post) => {
+      {data.map((post) => {
         return <PostView key={post.post.id} {...post} />;
       })}
     </div>
