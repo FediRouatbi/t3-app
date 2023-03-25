@@ -5,8 +5,6 @@ import type { RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import Image from "next/image";
-import Spinner from "~/components/Spinner";
 import CustomImage from "~/components/CustomImage";
 import LoadingPage from "~/components/Spinner";
 
@@ -47,7 +45,7 @@ const Posts = () => {
 };
 
 const Home: NextPage = () => {
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
 
   api.posts.getAll.useQuery();
 
@@ -60,16 +58,27 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="mx-auto  flex min-h-screen flex-col  gap-10 pt-10 md:max-w-2xl   ">
-        <div className="flex items-center space-x-4">
-          <CustomImage image={user?.profileImageUrl} />
-          <input
-            type="text"
-            className="block w-full rounded-lg bg-gray-50  p-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-            placeholder="Start a post"
-            required
-          />
-        </div>
-        <Posts />
+        {isSignedIn ? (
+          <>
+            <div className="absolute top-10 right-10">
+              <UserButton />
+            </div>
+            <div className="flex items-center space-x-4">
+              <CustomImage image={user?.profileImageUrl} />
+              <input
+                type="text"
+                className="block w-full rounded-lg bg-gray-50  p-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                placeholder="Start a post"
+                required
+              />
+            </div>
+            <Posts />
+          </>
+        ) : (
+          <div className="self-center">
+            <SignIn />
+          </div>
+        )}
       </main>
     </>
   );
