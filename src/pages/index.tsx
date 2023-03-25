@@ -1,13 +1,56 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useUser, SignIn, UserButton } from "@clerk/nextjs";
+import type { RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import Image from "next/image";
+import Spinner from "~/components/Spinner";
+import CustomImage from "~/components/CustomImage";
+import LoadingPage from "~/components/Spinner";
+
+dayjs.extend(relativeTime);
+type PostWithUser = RouterOutputs["posts"]["getAll"][number];
+const PostView = (post: PostWithUser) => {
+  return (
+    <div key={post.author?.id} className="flex w-full gap-3">
+      <CustomImage image={post.author?.profileImageUrl} />
+
+      <div className="flex flex-col">
+        <div className="flex items-end gap-2 text-sm text-slate-100">
+          <span className="font-medium">@{post.author?.firstName}</span>
+          <span className="text-xs text-slate-500">
+            {dayjs(post.post.createdAt).fromNow()}
+          </span>
+        </div>
+        <div>{post.post.content}</div>
+      </div>
+    </div>
+  );
+};
+
+const Posts = () => {
+  const { data, isLoading } = api.posts.getAll.useQuery();
+  console.log(isLoading);
+
+  if (isLoading) return <LoadingPage />;
+
+  if (!data) return <div />;
+
+  return (
+    <div className=" flex flex-col items-center gap-4 text-xl text-white">
+      {data.reverse().map((post) => {
+        return <PostView key={post.post.id} {...post} />;
+      })}
+    </div>
+  );
+};
 
 const Home: NextPage = () => {
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { data } = api.posts.getAll.useQuery();
-  console.log(user);
-  console.log(data);
+  const { user } = useUser();
+
+  api.posts.getAll.useQuery();
 
   return (
     <>
@@ -17,12 +60,17 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex   min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-          {data && data.map((el) => <div key={el.id}>{el.content}</div>)}
-        <UserButton />
-        <SignIn />
-        <div>
+      <main className="mx-auto  flex min-h-screen flex-col  gap-10 pt-10 md:max-w-2xl   ">
+        <div className="flex items-center space-x-4">
+          <CustomImage image={user?.profileImageUrl} />
+          <input
+            type="text"
+            className="block w-full rounded-lg bg-gray-50  p-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+            placeholder="Start a post"
+            required
+          />
         </div>
+        <Posts />
       </main>
     </>
   );
