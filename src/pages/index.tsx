@@ -55,7 +55,7 @@ const Home: NextPage = () => {
   const { mutate, isLoading: isPosting } = api.posts.post.useMutation({
     onSuccess: () => {
       setInput("");
-      void api.useContext().posts.invalidate();
+      void api.useContext().posts.getAll.invalidate();
     },
   });
 
