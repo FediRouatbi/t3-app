@@ -51,11 +51,11 @@ const Home: NextPage = () => {
   const [input, setInput] = useState("");
   const { user, isSignedIn } = useUser();
   api.posts.getAll.useQuery();
-
+  const ctx = api.useContext();
   const { mutate, isLoading: isPosting } = api.posts.post.useMutation({
     onSuccess: () => {
       setInput("");
-      void api.useContext().posts.getAll.invalidate();
+      void ctx.posts.getAll.invalidate();
     },
   });
 
